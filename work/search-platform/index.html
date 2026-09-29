@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Replacing a failing search service — John Rippington</title>
+  <meta name="description" content="Case study: one engineer, about two months, with GitHub Copilot. How I ran an AI coding agent like a team to take a replacement government search service to a working beta.">
+  <meta name="theme-color" content="#012F42">
+  <meta name="color-scheme" content="dark">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://rippington.net/work/search-platform/">
+  <meta property="og:title" content="Replacing a failing search service — one engineer, about two months">
+  <meta property="og:description" content="How I ran GitHub Copilot like a team to deliver a documented search platform for a UK government agency.">
+  <meta property="og:image" content="https://rippington.net/images/og-case.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../../images/apple-touch-icon.png">
+  <link rel="preload" href="../../fonts/ibm-plex-sans-latin-300-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../../fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../../css/site.css">
+</head>
+<body class="case-page">
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="nav" id="top">
+    <div class="wrap nav-inner">
+      <a class="brand" href="../../">John Rippington</a>
+      <nav aria-label="Primary">
+        <ul>
+          <li><a href="../../#work">What I do</a></li>
+          <li><a href="../../#selected-work" aria-current="page">Selected work</a></li>
+          <li><a href="../../#about">About</a></li>
+        </ul>
+      </nav>
+      <a class="btn btn-small" href="#contact">Get in touch</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="case-hero" aria-labelledby="case-title">
+      <div class="case-hero-image" aria-hidden="true">
+        <img src="../../images/seabed.jpg" srcset="../../images/seabed-1000.jpg 1000w, ../../images/seabed.jpg 1870w" sizes="(max-width: 820px) 100vw, 72vw" alt="" width="1870" height="841">
+      </div>
+      <div class="wrap case-hero-inner">
+        <p class="eyebrow"><a href="../../#selected-work">Selected work</a> · Case study</p>
+        <h1 id="case-title">Replacing a failing search service</h1>
+        <p class="case-sub">One engineer, about two months, with GitHub Copilot.</p>
+        <p class="status"><span class="status-dot" aria-hidden="true"></span>Working beta · not publicly available</p>
+        <dl class="stats hero-stats">
+          <div><dt>Engineers</dt><dd>1</dd></div>
+          <div><dt>Months</dt><dd>~2</dd></div>
+          <div><dt>Wiki pages</dt><dd>39</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <article class="section article">
+      <div class="wrap article-grid">
+        <nav class="toc" aria-label="On this page">
+          <p class="label">On this page</p>
+          <ol>
+            <li><a href="#problem">The problem</a></li>
+            <li><a href="#approach">Run it like a team</a></li>
+            <li><a href="#memory">Long-term memory</a></li>
+            <li><a href="#checks">Checking the work</a></li>
+            <li><a href="#built">What got built</a></li>
+            <li><a href="#limits">Honest limits</a></li>
+            <li><a href="#today">If I started today</a></li>
+          </ol>
+        </nav>
+
+        <div class="prose">
+          <section id="problem">
+            <h2>The problem</h2>
+            <p class="intro">A UK government agency’s document search kept failing its customers. The existing SQL search was built on an entity-attribute-value design, and perfectly innocent-looking queries could produce enormous query plans, which then failed.</p>
+            <p>Another query tweak wasn’t going to fix that. A replacement needed to ingest from different sources consistently, keep the meaning of a search separate from the mechanics of the engine, and handle failure properly. What happens when indexing falls behind? When updates arrive out of order? Where do failed messages go?</p>
+            <p>That’s a platform, not a search box on top of a search engine, and a conventional team proposal for that breadth was never going to be funded. An AI coding agent made it worth attempting with one engineer, but it didn’t remove a single engineering responsibility. Somebody still had to know what good looked like.</p>
+          </section>
+
+          <section id="approach">
+            <h2>Run it like a team</h2>
+            <p>I ran GitHub Copilot the way I would have run a team. I delegated the implementation, not the responsibility.</p>
+            <figure class="case-visual">
+              <ol class="loop">
+                <li class="you"><span class="stage">Analyse</span><span class="who">I set scope and boundaries → <em>brief</em></span></li>
+                <li class="you"><span class="stage">Specify</span><span class="who">We agree contracts and acceptance → <em>specification</em></span></li>
+                <li class="you"><span class="stage">Plan</span><span class="who">We sequence changes and tests → <em>execution plan</em></span></li>
+                <li class="ai"><span class="stage">Build &amp; check</span><span class="who">Copilot implements; I accept the work → <em>review evidence</em></span></li>
+              </ol>
+              <figcaption class="legend"><span class="key"><span class="dot you"></span>My judgement</span><span class="key"><span class="dot ai"></span>AI</span><span class="legend-note">When implementation exposed a bad assumption, we went back to the spec or the plan.</span></figcaption>
+            </figure>
+            <p>Acceptance criteria did most of the work. “Build a robust ingestion pipeline” is useless. “If one update fails and is retried, can a later update for the same document overtake it?” is useful: it constrains the implementation and gives the review something to challenge. That kind of question doesn’t come from a longer prompt. It comes from experience.</p>
+            <p>My day split roughly in half: half specifying and reviewing, half driving Copilot through the work. It’s a lead engineer’s week, compressed into a day.</p>
+          </section>
+
+          <section id="memory">
+            <h2>Long-term memory</h2>
+            <p>By about day three, the spec and plan weren’t enough. However carefully I adjusted them, the code for individual tasks started drifting apart. Each session knew what it was meant to do next, but had no stable picture of what was already true. The first version of the ingestion pipeline was the casualty, and I threw it away and rebuilt it.</p>
+            <p>I’d seen the same thing in human teams without shared, written-down architecture, and the fix was the same. A project wiki became the agent’s long-term memory: architecture, contracts, field meanings and decisions, drawn into every prompt. Custom instructions carried the working rules; the spec and plan carried the current task’s scope.</p>
+            <figure class="case-art">
+              <img src="../../images/case-wiki.png" width="1400" height="820" loading="lazy" alt="A page from the project wiki, shown as a glowing layer: a sequence diagram of the node lifecycle, from supervisor to input channel, metrics and output channel.">
+              <figcaption>A real page from the project wiki: the node lifecycle as a sequence diagram, written for the agent and readable by people.</figcaption>
+            </figure>
+            <p class="pullout">The side effect is documentation that’s actually current, because the build depended on it: 39 pages, written for the agent and readable by people.</p>
+          </section>
+
+          <section id="checks">
+            <h2>Checking the work</h2>
+            <p>Copilot sometimes produced code that looked right, passed its tests, and was wrong. The dangerous version is when the code and the tests share the same wrong assumption: everything’s green, and nothing’s been proved.</p>
+            <p>Working solo, I caught those by reading the tests rather than just the results, by running the system and watching what it actually did, and with fresh-session reviews against the spec. That doesn’t scale to a team, so these are the checks I’d reach for there:</p>
+            <ul class="checks">
+              <li><strong>Tests written from the spec, before the code,</strong> with each acceptance criterion naming the test that proves it.</li>
+              <li><strong>Separate author and checker.</strong> The implementing agent can’t edit the tests.</li>
+              <li><strong>Mutation testing:</strong> if you inject a bug and the tests stay green, they aren’t testing anything.</li>
+              <li><strong>Property-based tests</strong> for invariants such as ordering during retries.</li>
+              <li><strong>Architecture rules enforced by the build,</strong> not by someone spotting a violation in review.</li>
+            </ul>
+            <figure class="case-art layers-figure">
+              <div class="layers-art">
+                <img src="../../images/case-checks.png" width="1400" height="1000" loading="lazy" alt="Five stacked translucent layers, each with holes. A defect falls through holes in the first two layers and is caught by the third.">
+                <ol class="layer-labels" aria-hidden="true">
+                  <li style="top:19%">Tests from the spec</li>
+                  <li style="top:35.5%">Separate author and checker</li>
+                  <li class="caught" style="top:52%">Mutation testing</li>
+                  <li style="top:68.5%">Property-based tests</li>
+                  <li style="top:85%">Architecture rules</li>
+                </ol>
+              </div>
+              <figcaption>Each layer has holes. The point is that the holes don’t line up.</figcaption>
+            </figure>
+          </section>
+
+          <section id="built">
+            <h2>What got built</h2>
+            <p>A working beta of a search platform, not just an endpoint, following an onion architecture: contracts and behaviour inward, infrastructure at the edge.</p>
+            <figure class="flow">
+              <div class="flow-row"><span class="flow-label">Ingest</span><span class="pill">Providers</span><span class="flow-arrow" aria-hidden="true"></span><span class="pill you">Ordered pipeline + rules</span><span class="flow-arrow" aria-hidden="true"></span><span class="pill">Canonical document</span></div>
+              <div class="flow-row"><span class="flow-label">Query</span><span class="pill">Search text</span><span class="flow-arrow" aria-hidden="true"></span><span class="pill">Typed signals + rules</span><span class="flow-arrow" aria-hidden="true"></span><span class="pill you">Query plan</span></div>
+              <div class="flow-sink"><span class="pill ai">Elasticsearch · one shared index</span></div>
+              <figcaption>Amber marks the two design decisions that mattered most.</figcaption>
+            </figure>
+            <p><strong>Ingestion</strong> runs on a channel-based graph with bounded channels for backpressure. Messages are partitioned into ordered lanes by document key, so unrelated work runs concurrently while updates to one document stay in order, and a retry deliberately blocks its lane so a later update can’t overtake it. That’s a correctness decision, not a performance setting. Terminal failures go to dead-letter paths, and per-node metrics make runtime problems visible.</p>
+            <p><strong>Query</strong> meaning lives in a query plan the repository owns: typed signals, rules for concepts, filters and sorting. Infrastructure translates the plan into search-engine requests, so search policy isn’t buried in a UI component, and you can test what a query means before testing what it sends.</p>
+            <p><strong>Around it:</strong> .NET Aspire orchestration, emulators, data images, rule-authoring tools and a modular Blazor workbench, with tests that mirror the project boundaries.</p>
+          </section>
+
+          <section id="limits">
+            <h2>Honest limits</h2>
+            <p>The platform reached a working, documented beta rather than a public release, so it isn’t something you can use online today.</p>
+            <p>It also wasn’t equally good everywhere. Most of my attention went into the service; the UI was a sideline, and it shows. Copilot didn’t make up for the attention I didn’t give it.</p>
+            <p>It was also the easy version. Working alone meant no coordination cost, full continuity, and one person’s judgement applied everywhere. For comparison, a service I led previously was delivered by a ten-person team over nine months. The scope, reuse and context were different, so I wouldn’t divide one by the other, but it shows how much one experienced engineer could take on.</p>
+            <p class="pullout">Copilot amplified what I brought. Where I brought thirty years of architecture, it amplified that. Where I brought less attention, it amplified that too.</p>
+          </section>
+
+          <section id="today">
+            <h2>If I started today</h2>
+            <p>This was built at the start of 2026, and the tooling has moved on quickly. Today I’d add code knowledge graphs, which map where things are in a codebase as well as why, and spec-driven tooling that formalises the analyse–specify–plan–build loop. The principle wouldn’t change: an agent needs a durable, authoritative source of truth, and so does a team.</p>
+          </section>
+        </div>
+      </div>
+    </article>
+
+    <section id="contact" class="section contact" aria-labelledby="contact-title">
+      <canvas class="contours" data-mode="soft" aria-hidden="true"></canvas>
+      <div class="wrap contact-inner">
+        <p class="label">Contact</p>
+        <h2 id="contact-title">Working on something similar?</h2>
+        <p class="lead">I’d be glad to hear what you’re working on, whether it’s a system that needs rebuilding or a team working out how AI fits in.</p>
+        <div class="actions">
+          <a class="btn" href="../../#contact">Send a message</a>
+          <a class="btn btn-ghost" href="mailto:john@rippington.net">john@rippington.net</a>
+          <a class="btn btn-ghost" href="https://www.linkedin.com/in/johnrippington">LinkedIn</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <span>© 2026 John Rippington</span>
+      <a href="../../">Home</a>
+    </div>
+  </footer>
+
+  <script src="../../js/site.js" defer></script>
+</body>
+</html>
